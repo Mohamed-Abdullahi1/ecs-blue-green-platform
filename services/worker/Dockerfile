@@ -1,4 +1,4 @@
-FROM golang:1.25.12-alpine3.24 AS builder
+FROM golang:1.25.13-alpine3.24 AS builder
 
 WORKDIR /build
 
@@ -12,7 +12,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 
 FROM alpine:3.24
 
-RUN addgroup -S appgroup && \
+RUN apk upgrade --no-cache && \
+    addgroup -S appgroup && \
     adduser -S appuser -G appgroup
 
 WORKDIR /app
