@@ -1,0 +1,52 @@
+
+name: Docker Build Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_parallel:
+        description: Number of concurrent builds
+        required: true
+        type: choice
+        options:
+          - "1"
+          - "4"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(inputs.max_parallel) }}
+      matrix:
+        include:
+          - service: api
+            context: ./app
+          - service: worker
+            context: ./services/worker
+          - service: dashboard
+            context: ./services/dashboard
+          - service: frontend
+            context: ./frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          pull: true
+          push: false
+          cache-from: type=gha,scope=${{ matrix.service }}
+          tags: benchmark-${{ matrix.service }}:${{ github.sha }}
