@@ -14,6 +14,10 @@ terraform.tfstate*
 *.tfstate
 *.tfstate.*
 *.tfvars
-.terraform.lock.hcl
 
 .localstack/
+
+trivy-*.json
+checkov-*.json
+gitleaks-report*.json
+*.tfplan
